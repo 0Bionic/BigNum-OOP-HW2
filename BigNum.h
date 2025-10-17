@@ -190,6 +190,7 @@ private:
 * Equivalent to deleting the dynamic array or releasing memory.
 * Called in destructor and input methods before resetting the value.
 */
+
 void clear();
 };
 #endif

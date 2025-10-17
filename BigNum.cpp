@@ -99,13 +99,16 @@ void BigNum::input(){
 
 // Outputs the value stored
 void BigNum::print(){
+    if(negative)std::cout<<'-';
     for(int i = 0; i < value.size(); i++){
-        if(value.size() - (i+1) % 4 == 0 && i != 0){
+        // Printing ','
+        if((value.size() - (i)) % 3 == 0 && i != 0){
             std::cout<<',';
         }
         //std::cout<<value[i];
-        std::cout<<value.at(i);
+        std::cout<<value.at(i); // Read online that using .at(index) is better
     }
+    std::cout<<"\n";
 }
 
 // Destructor
@@ -113,9 +116,95 @@ BigNum::~BigNum(){
     clear();
 }
 
+// Clearing the value of a vector
 void BigNum::clear(){
     value.clear(); // Clears the vector
     negative = false;
 }
 
-int main(void){}
+
+// Overloaded the '=' operator
+void BigNum::operator=(const BigNum& bigNum) {
+    if (this != &bigNum) {
+        value = bigNum.value;
+        negative = bigNum.negative;
+    }
+}
+
+// Copies a BigNum to another
+void BigNum::copy(const BigNum& bigNum){
+    if (this != &bigNum) {
+        value = bigNum.value;
+        negative = bigNum.negative;
+    }
+}
+
+void BigNum::zerofy(){
+    clear();
+    value.push_back('0');
+}
+// ==============================================
+
+// ===== Arithmetic Operations: Addition =====
+void BigNum::increment(){
+    // Use add in it
+    int carry = 0;
+}
+
+// Adding two BigNums (assuming the numbers can be either positive or negative)
+BigNum BigNum::add(const BigNum& bigNum){
+    BigNum result;
+    result.negative = (negative && bigNum.negative); // If both numbers are negative
+
+}
+// ==============================================
+
+// ===== Arithmetic Operations: Subtraction =====
+
+// ==============================================
+
+// ===== Compariso Operations =====
+
+bool BigNum::equals(const BigNum& bigNum){
+    return(value == bigNum.value && negative == bigNum.negative);
+}
+
+bool BigNum::notEquals(const BigNum& bigNum){
+    return!(value == bigNum.value && negative == bigNum.negative);
+}
+
+bool BigNum::lessThan(const BigNum& bigNum){
+    // returns false if this number is positive and the other negative
+    // returns true if this number is negative and the other positive
+    if(negative != bigNum.negative) return negative;
+
+    if(!negative){ // If both positive
+        // Compare Size First
+        if(value.size() != bigNum.value.size()){
+            return (value.size() < bigNum.value.size());
+        }
+
+        for(int i = 0; i < value.size(); i++){
+            if(value.at(i) != bigNum.value.at(i)){
+                return(value.at(i) < bigNum.value.at(i));
+            }
+        }
+
+    }else{ // If both negative
+        // Compare Size First
+        if(value.size() != bigNum.value.size()){
+            return (value.size() > bigNum.value.size());
+        }
+
+        for(int i = 0; i < value.size(); i++){
+            if(value.at(i) != bigNum.value.at(i)){
+                return(value.at(i) > bigNum.value.at(i));
+            }
+        }
+    }
+}
+
+bool BigNum::greaterThan(const BigNum& bigNum){
+    // Checks if they aren't equal and if this isn't less than the parameter
+    return (!equals(bigNum) && !lessThan(bigNum));
+}
