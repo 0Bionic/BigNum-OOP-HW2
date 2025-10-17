@@ -1,6 +1,7 @@
 #ifndef BIG_NUM_H
 #define BIG_NUM_H
 #include <string>
+#include <vector>
 /**
 * @class BigNum
 * @brief Represents arbitrarily large integers using dynamic storage.
@@ -176,10 +177,13 @@ bool lessThan(const BigNum& bigNum);
 * @return True if greater than, otherwise false.
 */
 bool greaterThan(const BigNum& bigNum);
+
 private:
 // Internal representation of the number:
 // (e.g., vector<char>, dynamically allocated char*, or linked list).
 // No static arrays are allowed.
+    std::vector<char> value;
+    bool negative;
 /**
 * @brief Clears the current stored number.
 *
