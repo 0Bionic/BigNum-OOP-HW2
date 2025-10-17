@@ -17,7 +17,6 @@ BigNum::BigNum(const BigNum& bigNum){
 
 // Constructor using a string
 BigNum::BigNum(const std::string& bigStr){
-    clear(); // Ensure a clean state
     if(bigStr.empty()){
         value.push_back('0');
         negative = false;
@@ -59,32 +58,33 @@ BigNum::BigNum(const std::string& bigStr){
 // Constructor using integer as the parameter
 BigNum::BigNum(const int num){
     // Handle sign
-    if(num < 0){
+    if (num < 0) {
         negative = true;
-    }else negative = false;
+    } else {
+        negative = false;
+    }
 
     int temp = num;
-    if (negative) temp = -temp; // making num positive
+    if (negative) temp = -temp; // if negative, make positive
 
+    // Handle zero
     if (temp == 0) {
         value.push_back('0');
         return;
     }
 
-    // Calculation for finding individual digits
-    int mod = 10, n = 0;
-    while(!(temp / mod < 10)){
+    // Find the highest power of 10 smaller than or equal to temp
+    int mod = 1;
+    while (temp / mod >= 10) {
         mod *= 10;
-        n++;
     }
 
     // Extract digits (most significant to least significant)
-    for(int i = 0; i <= n; i++){
+    while (mod > 0) {
         int digit = temp / mod; // get the leading digit
         value.push_back(static_cast<char>('0' + digit)); // store as char
-        temp = temp % mod; // remove that digit
+        temp %= mod; // remove that digit
         mod /= 10;
-        if (mod == 0) break;
     }
 }
 
@@ -94,7 +94,8 @@ void BigNum::input(){
     int num;
     std::cin>>num;
     BigNum tmp(num);
-    *this = tmp;
+    value = tmp.value;
+    negative = tmp.negative;
 }
 
 // Outputs the value stored
@@ -125,7 +126,7 @@ void BigNum::clear(){
 
 // Overloaded the '=' operator
 void BigNum::operator=(const BigNum& bigNum) {
-    if (this != &bigNum) {
+    if (this != &bigNum){
         value = bigNum.value;
         negative = bigNum.negative;
     }
@@ -133,7 +134,7 @@ void BigNum::operator=(const BigNum& bigNum) {
 
 // Copies a BigNum to another
 void BigNum::copy(const BigNum& bigNum){
-    if (this != &bigNum) {
+    if (this != &bigNum){
         value = bigNum.value;
         negative = bigNum.negative;
     }
@@ -148,14 +149,62 @@ void BigNum::zerofy(){
 // ===== Arithmetic Operations: Addition =====
 void BigNum::increment(){
     // Use add in it
-    int carry = 0;
 }
 
 // Adding two BigNums (assuming the numbers can be either positive or negative)
 BigNum BigNum::add(const BigNum& bigNum){
     BigNum result;
-    result.negative = (negative && bigNum.negative); // If both numbers are negative
+    
+    // If the signs are different use subtraction
+    if (negative && !bigNum.negative) {
+        // (-A) + B = B - A
+        BigNum tmpThis = *this;
+        tmpThis.negative = false;           // make positive for subtraction
+        BigNum tmpBig = bigNum; // make a non-const copy
+        //result = tmpBig.subtract(tmpThis);  // use non-const copy
+        return result;
+    }
 
+    if (!negative && bigNum.negative) {
+        // A + (-B) = A - B
+        BigNum tmpBig = bigNum;
+        tmpBig.negative = false;            // remove sign for subtraction
+        BigNum tmpThis = *this; // make a non const copy
+        //result = tmpThis.subtract(tmpBig);
+        return result;
+    }
+
+    // If the signs are the same
+    result.negative = negative;
+
+    int i = value.size() - 1;
+    int j = bigNum.value.size() - 1;
+    int carry = 0;
+
+    // Insert digits at the front
+    while (i >= 0 || j >= 0 || carry > 0) {
+        int digitA = 0;
+        if (i >= 0) {
+            digitA = value[i] - '0';
+        }
+
+        int digitB = 0;
+        if (j >= 0) {
+            digitB = bigNum.value[j] - '0';
+        }
+
+        int total = digitA + digitB + carry;
+        carry = total / 10;
+        total %= 10;
+
+        // Insert at the front to avoid reversing and leading zeros
+        result.value.insert(result.value.begin(), '0' + total);
+
+        i--;
+        j--;
+    }
+
+    return result;
 }
 // ==============================================
 
@@ -163,7 +212,7 @@ BigNum BigNum::add(const BigNum& bigNum){
 
 // ==============================================
 
-// ===== Compariso Operations =====
+// ===== Comparison Operations =====
 
 bool BigNum::equals(const BigNum& bigNum){
     return(value == bigNum.value && negative == bigNum.negative);
@@ -208,3 +257,4 @@ bool BigNum::greaterThan(const BigNum& bigNum){
     // Checks if they aren't equal and if this isn't less than the parameter
     return (!equals(bigNum) && !lessThan(bigNum));
 }
+// ==============================================
