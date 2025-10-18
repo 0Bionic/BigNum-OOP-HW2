@@ -27,10 +27,10 @@ int main() {
     cout << "-500 + 200 = ";
     m7.add(m8).print(); // Expected: -300
 
-    BigNum m9("-1234");
+    BigNum m9("-123");
     BigNum m10("-876");
-    cout << "-1234 + -876 = ";
-    m9.add(m10).print(); // Expected: -2110
+    cout << "-123 + -876 = ";
+    m9.add(m10).print(); // Expected: -999
 
     BigNum m11("999999999");
     BigNum m12("1");

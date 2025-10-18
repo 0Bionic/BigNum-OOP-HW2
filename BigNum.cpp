@@ -2,6 +2,7 @@
 #include "BigNum.h"
 #include <cstring>
 #include <vector>
+#include <fstream>
 
 // Default Constructor
 BigNum::BigNum(){
@@ -110,6 +111,37 @@ void BigNum::print(){
         std::cout<<value.at(i); // Read online that using .at(index) is better
     }
     std::cout<<"\n";
+}
+
+void BigNum::inputFromFile(const std::string& fileName){
+    clear();
+    std::ifstream inFile(fileName);
+    if(!inFile){
+        std::cout<<"Error opening file "<<fileName<<"\n";
+        value.push_back('0');
+        negative = false;
+        return;
+    }
+    std::string bigStr;
+    inFile>>bigStr;
+    inFile.close();
+
+    BigNum temp(bigStr);
+    value = temp.value;
+    negative = temp.negative;
+}
+
+void BigNum::printToFile(const std::string& fileName){
+    std::ofstream outFile(fileName);
+    if(!outFile){
+        std::cout<<"Error opening file "<<fileName<<"\n";
+        return;
+    }
+    if(negative) outFile<<'-';
+    for(int i = 0; i < value.size(); i++){
+        outFile<<value.at(i);
+    }
+    outFile.close();
 }
 
 // Destructor
