@@ -304,7 +304,11 @@ BigNum BigNum::subtract(const BigNum& bigNum) {
         result.negative = false;
     }
 
-    result.value.pop_back();
+    // Remove trailing zero that might appear, but don't remove the only zero
+    if (result.value.size() > 1 && result.value.back() == '0') {
+        result.value.pop_back();
+    }
+
     return result;
 }
 
@@ -392,12 +396,13 @@ BigNum BigNum::div(const BigNum& bigNum) {
 
         int count = 0;
         
-        while (!remainder.lessThan(divisor)) {
+    while (remainder.greaterThan(divisor) || remainder.equals(divisor)) {
             remainder = remainder.subtract(divisor);
             count++;
+            std::cout<<"Inside while loop\n";
         }
         std::cout<<"Out of the while loop\n";
-        quotient.push_back('0' + count);
+        quotient += std::to_string(count);
     }
     std::cout<<"Out of the for loop\n";
     ////////
@@ -459,6 +464,7 @@ bool BigNum::lessThan(const BigNum& bigNum){
             }
         }
     }
+    return false;
 }
 
 bool BigNum::greaterThan(const BigNum& bigNum){
