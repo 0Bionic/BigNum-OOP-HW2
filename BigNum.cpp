@@ -206,7 +206,8 @@ BigNum BigNum::add(const BigNum& bigNum) {
     for (int k = sum.size() - 1; k >= 0; --k) {
         result.value.push_back(sum[k]);
     }
-    result.value.erase(result.value.begin());
+    if (result.value.size() > 1 && result.value[0] == '0')
+        result.value.erase(result.value.begin());
     return result;
 }
 
@@ -240,7 +241,7 @@ void BigNum::decrement(){
 BigNum BigNum::subtract(const BigNum& bigNum) {
     BigNum result;
 
-    // Different signs: subtraction becomes addition
+    // Different signs mean that subtraction becomes addition
     if (negative && !bigNum.negative) {
         BigNum tmpThis = *this;
         tmpThis.negative = false;
@@ -302,6 +303,7 @@ BigNum BigNum::subtract(const BigNum& bigNum) {
         result.value.push_back('0');
         result.negative = false;
     }
+
     result.value.pop_back();
     return result;
 }
@@ -324,7 +326,92 @@ void BigNum::compoundSubtract(const int num) {
 }
 // ==============================================
 
-// ===== Arithmetic Operations: Multiplication =====
+// ===== Arithmetic Operation: Multiplication =====
+
+BigNum BigNum::multiply(const BigNum& bigNum) {
+    // Handle multiplication by zero
+    if ((value.size() == 1 && value[0] == '0') ||
+        (bigNum.value.size() == 1 && bigNum.value[0] == '0')) {
+        return BigNum("0");
+    }
+
+    int n = value.size();
+    int m = bigNum.value.size();
+    std::string product(n + m, '0');
+
+    // Perform long multiplication
+    for (int i = n - 1; i >= 0; --i) {
+        int carry = 0;
+        int digitA = value[i] - '0';
+
+        for (int j = m - 1; j >= 0; --j) {
+            int digitB = bigNum.value[j] - '0';
+            int sum = (product[i + j + 1] - '0') + digitA * digitB + carry;
+
+            product[i + j + 1] = (sum % 10) + '0';
+            carry = sum / 10;
+        }
+
+        product[i] = ((product[i] - '0') + carry) + '0';
+    }
+
+    BigNum result(product);
+    result.negative = (negative != bigNum.negative);
+    return result;
+}
+// ==============================================
+
+// ===== Arithmetic Operation: Division =====
+
+BigNum BigNum::div(const BigNum& bigNum) {
+    BigNum result("0");
+
+    // Division by zero check
+    if (bigNum.value.size() == 1 && bigNum.value[0] == '0') {
+        throw std::runtime_error("Division by zero");
+    }
+
+    // If this < bigNum, answer is always 0
+    BigNum lhs = *this;
+    BigNum rhs = bigNum;
+    lhs.negative = false;
+    rhs.negative = false;
+
+    if (lhs.lessThan(rhs)) {
+        return result;
+    }
+
+    std::string quotient;
+    BigNum remainder("0");
+
+    // long division
+    for (char digit : lhs.value) {
+        // remainder = remainder * 10 + current digit
+        remainder = remainder.multiply(BigNum("10"));
+        remainder = remainder.add(BigNum(std::string(1, digit))); // makes a BigNum with the current digit and adds it to the remainder
+
+        int count = 0;
+        while (!remainder.lessThan(rhs) || !remainder.equals(rhs)) {
+            remainder = remainder.subtract(rhs);
+            count++;
+        }
+
+        quotient.push_back('0' + count);
+    }
+
+    BigNum finalResult(quotient);
+
+    // If bot bigNums have opposite signs, then negative will be true
+    finalResult.negative = (negative != bigNum.negative);
+
+    // If answer is 0
+    if (finalResult.value.size() == 1 && finalResult.value[0] == '0') {
+        finalResult.negative = false;
+    }
+
+    return finalResult;
+}
+
 
 
 // ==============================================
