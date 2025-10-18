@@ -147,41 +147,41 @@ void BigNum::zerofy(){
 // ==============================================
 
 // ===== Arithmetic Operations: Addition =====
-void BigNum::increment(){
-    // Use add in it
+// Incremenets 1
+void BigNum::increment() {
+    // use add in it
+    BigNum one(1);
+    operator=(add(one)); // Add 1 and assign the result
 }
 
 // Adding two BigNums (assuming the numbers can be either positive or negative)
-BigNum BigNum::add(const BigNum& bigNum){
+BigNum BigNum::add(const BigNum& bigNum) {
     BigNum result;
-    
-    // If the signs are different use subtraction
+
+    // Different Signs
     if (negative && !bigNum.negative) {
-        // (-A) + B = B - A
         BigNum tmpThis = *this;
-        tmpThis.negative = false;           // make positive for subtraction
-        BigNum tmpBig = bigNum; // make a non-const copy
-        //result = tmpBig.subtract(tmpThis);  // use non-const copy
-        return result;
-    }
-
-    if (!negative && bigNum.negative) {
-        // A + (-B) = A - B
+        tmpThis.negative = false;
         BigNum tmpBig = bigNum;
-        tmpBig.negative = false;            // remove sign for subtraction
-        BigNum tmpThis = *this; // make a non const copy
-        //result = tmpThis.subtract(tmpBig);
+        result = tmpBig.subtract(tmpThis);
+        return result;
+    }
+    if (!negative && bigNum.negative) {
+        BigNum tmpBig = bigNum;
+        tmpBig.negative = false;
+        BigNum tmpThis = *this;
+        result = tmpThis.subtract(tmpBig);
         return result;
     }
 
-    // If the signs are the same
-    result.negative = negative;
+    // Same Signs
+    result.negative = negative; // result sign matches operands
 
     int i = value.size() - 1;
     int j = bigNum.value.size() - 1;
     int carry = 0;
+    std::vector<char> sum; // stores the value in reverse
 
-    // Insert digits at the front
     while (i >= 0 || j >= 0 || carry > 0) {
         int digitA = 0;
         if (i >= 0) {
@@ -195,20 +195,137 @@ BigNum BigNum::add(const BigNum& bigNum){
 
         int total = digitA + digitB + carry;
         carry = total / 10;
-        total %= 10;
+        total = total % 10;
 
-        // Insert at the front to avoid reversing and leading zeros
-        result.value.insert(result.value.begin(), '0' + total);
+        sum.push_back('0' + total);
 
-        i--;
-        j--;
+        i--; j--;
     }
 
+    // Reverse digits to get correct order
+    for (int k = sum.size() - 1; k >= 0; --k) {
+        result.value.push_back(sum[k]);
+    }
+    result.value.erase(result.value.begin());
     return result;
+}
+
+// Adds an integer to BigNum
+BigNum BigNum::add(const int num){
+    BigNum temp(num);
+    return add(temp);
+}
+
+// Adds a BigNum in place
+void BigNum::compoundAdd(const BigNum& bigNum){
+    *this = add(bigNum);
+}
+
+// Adds an integer in place
+void BigNum::compoundAdd(const int num) {
+    BigNum temp(num);
+    *this = add(temp);
 }
 // ==============================================
 
 // ===== Arithmetic Operations: Subtraction =====
+// Decrements 1
+void BigNum::decrement(){
+    // use subtract in it
+    BigNum one(1);
+    operator=(subtract(one)); // Subtract 1 and assign the result
+}
+
+// Subtract another BigNum from this one
+BigNum BigNum::subtract(const BigNum& bigNum) {
+    BigNum result;
+
+    // Different signs: subtraction becomes addition
+    if (negative && !bigNum.negative) {
+        BigNum tmpThis = *this;
+        tmpThis.negative = false;
+        result = tmpThis.add(bigNum);
+        result.negative = true;
+        return result;
+    }
+    if (!negative && bigNum.negative) {
+        BigNum tmpBig = bigNum;
+        tmpBig.negative = false;
+        result = add(tmpBig);
+        return result;
+    }
+
+    // Same signs
+    const BigNum* larger;
+    const BigNum* smaller;
+    bool resultNeg;
+
+    if (lessThan(bigNum)) {      // *this->value < bigNum.value
+        larger = &bigNum;
+        smaller = this;
+        resultNeg = !negative;    // Result sign is opposite of this
+    } else {
+        larger = this;
+        smaller = &bigNum;
+        resultNeg = negative;     // Result sign same as this
+    }
+
+    result.negative = resultNeg;
+
+    int i = larger->value.size() - 1;
+    int j = smaller->value.size() - 1;
+    int borrow = 0;
+
+    while (i >= 0 || j >= 0 || borrow > 0) {
+        int digitL = 0;
+        if (i >= 0) digitL = larger->value[i] - '0';
+        int digitS = 0;
+        if (j >= 0) digitS = smaller->value[j] - '0';
+
+        int diff = digitL - digitS - borrow;
+        if (diff < 0) {
+            diff += 10;
+            borrow = 1;
+        } else {
+            borrow = 0;
+        }
+
+        // Only insert digits if not a leading zero or result already has digits
+        if (diff != 0 || result.value.size() > 0 || (i == 0 && j <= 0 && borrow == 0)) {
+            result.value.insert(result.value.begin(), '0' + diff);
+        }
+        i--; j--;
+    }
+
+    // If nothing was inserted (0 - 0), add a single zero
+    if (result.value.size() == 0) {
+        result.value.push_back('0');
+        result.negative = false;
+    }
+    result.value.pop_back();
+    return result;
+}
+
+// Subtracts an integer from BigNum
+BigNum BigNum::subtract(const int num){
+    BigNum temp(num);
+    return subtract(temp);
+}
+
+// Subtracts a BigNum in place
+void BigNum::compoundSubtract(const BigNum& bigNum){
+    *this = subtract(bigNum);
+}
+
+// Subtracts an integer in place
+void BigNum::compoundSubtract(const int num) {
+    BigNum temp(num);
+    *this = subtract(temp);
+}
+// ==============================================
+
+// ===== Arithmetic Operations: Multiplication =====
+
 
 // ==============================================
 
@@ -254,7 +371,6 @@ bool BigNum::lessThan(const BigNum& bigNum){
 }
 
 bool BigNum::greaterThan(const BigNum& bigNum){
-    // Checks if they aren't equal and if this isn't less than the parameter
     return (!equals(bigNum) && !lessThan(bigNum));
 }
 // ==============================================
