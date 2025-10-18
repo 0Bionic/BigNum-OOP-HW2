@@ -52,6 +52,40 @@ int main() {
     cout << "0 + 0 = ";
     zero1.add(zero2).print(); // Expected: 0
 
+    cout << "=== BigNum Subtraction Tests (1 case per condition) ===" << endl;
+
+    // 1. Positive - Positive (result positive)
+    BigNum a1("500"), b1("200");
+    cout << "500 - 200 = "; a1.subtract(b1).print(); // Expected: 300
+
+    // 2. Positive - Positive (result negative)
+    BigNum a2("200"), b2("500");
+    cout << "200 - 500 = "; a2.subtract(b2).print(); // Expected: -300
+
+    // 3. Negative - Negative (result negative)
+    BigNum a3("-500"), b3("-200");
+    cout << "-500 - (-200) = "; a3.subtract(b3).print(); // Expected: -300
+
+    // 4. Negative - Negative (result positive)
+    BigNum a4("-200"), b4("-500");
+    cout << "-200 - (-500) = "; a4.subtract(b4).print(); // Expected: 300
+
+    // 5. Positive - Negative
+    BigNum a5("200"), b5("-300");
+    cout << "200 - (-300) = "; a5.subtract(b5).print(); // Expected: 500
+
+    // 6. Negative - Positive
+    BigNum a6("-200"), b6("300");
+    cout << "-200 - 300 = "; a6.subtract(b6).print(); // Expected: -500
+
+    // 7. Zero cases
+    BigNum z1("0"), z2("0");
+    cout << "0 - 0 = "; z1.subtract(z2).print(); // Expected: 0
+
+    // 8. Large numbers
+    BigNum a7("123456789123456789"), b7("123456789123456788");
+    cout << "123456789123456789 - 123456789123456788 = "; a7.subtract(b7).print(); // Expected: 1
+
     cout << "0 - 0 = ";
     zero1.subtract(zero2).print(); // Expected: 0
 

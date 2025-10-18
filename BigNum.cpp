@@ -293,7 +293,13 @@ BigNum BigNum::subtract(const BigNum& bigNum) {
     const BigNum* smaller;
     bool resultNeg;
 
-    if (lessThan(bigNum)) {      // *this->value < bigNum.value
+    // FIX: Compare absolute values, because both are negative or both positive
+    BigNum absThis = *this;
+    absThis.negative = false;
+    BigNum absOther = bigNum;
+    absOther.negative = false;
+
+    if (absThis.lessThan(absOther)) {      // Compare absolute values
         larger = &bigNum;
         smaller = this;
         resultNeg = !negative;    // Result sign is opposite of this
@@ -330,7 +336,7 @@ BigNum BigNum::subtract(const BigNum& bigNum) {
         i--; j--;
     }
 
-    // If nothing was inserted (0 - 0), add a single zero
+    // If 0 - 0, return 0
     if (result.value.size() == 0) {
         result.value.push_back('0');
         result.negative = false;
@@ -343,6 +349,7 @@ BigNum BigNum::subtract(const BigNum& bigNum) {
 
     return result;
 }
+
 
 // Subtracts an integer from BigNum
 BigNum BigNum::subtract(const int num){

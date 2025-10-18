@@ -149,11 +149,11 @@ int main() {
     BigNum comp1("50");
     BigNum comp2("25");
     comp1.compoundAdd(comp2);
-    cout << "50 += 25 → ";
+    cout << "50 += 25 gives ";
     comp1.print(); // Expected 75
 
     comp1.compoundSubtract(BigNum("50"));
-    cout << "75 -= 50 → ";
+    cout << "75 -= 50 gives ";
     comp1.print(); // Expected 25
 
 
@@ -165,7 +165,7 @@ int main() {
 
     BigNum io2;
     io2.inputFromFile("output.txt");
-    cout << "Read from output.txt → ";
+    cout << "Read from output.txt = ";
     io2.print();
 
     cout << "\nAll tests completed successfully.\n";
