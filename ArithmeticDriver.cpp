@@ -167,13 +167,79 @@ int main() {
     BigNum d19("123");
     BigNum d20("0");
     cout << "123 / 0 = ";
-    d19.div(d20).print(); // Expected: [error or handled case]
+    d19.div(d20).print(); // Expected: CANNOT DIVIDE BY 0! Ans = 0
 
     // Zero divided by something
     BigNum d21("0");
     BigNum d22("123");
     cout << "0 / 123 = ";
     d21.div(d22).print(); // Expected: 0
+
+    // ===== Modulo Tests =====
+    cout << "\n=== Modulo Tests ===" << endl;
+
+    // Simple modulo
+    BigNum mod1("10");
+    BigNum mod2("3");
+    cout << "10 % 3 = ";
+    mod1.mod(mod2).print(); // Expected: 1
+
+    BigNum mod3("15");
+    BigNum mod4("4");
+    cout << "15 % 4 = ";
+    mod3.mod(mod4).print(); // Expected: 3
+
+    // Dividend smaller than divisor
+    BigNum mod5("5");
+    BigNum mod6("10");
+    cout << "5 % 10 = ";
+    mod5.mod(mod6).print(); // Expected: 5
+
+    // Dividend equal to divisor
+    BigNum mod7("100");
+    BigNum mod8("100");
+    cout << "100 % 100 = ";
+    mod7.mod(mod8).print(); // Expected: 0
+
+    // Large numbers
+    BigNum mod9("123456789");
+    BigNum mod10("12345");
+    cout << "123456789 % 12345 = ";
+    mod9.mod(mod10).print(); // Expected: 6789
+
+    // Negative dividend
+    BigNum mod11("-100");
+    BigNum mod12("30");
+    cout << "-100 % 30 = ";
+    mod11.mod(mod12).print(); // Expected: -10
+
+    // Negative divisor
+    BigNum mod13("100");
+    BigNum mod14("-30");
+    cout << "100 % -30 = ";
+    mod13.mod(mod14).print(); // Expected: 10
+
+    // Both negative
+    BigNum mod15("-100");
+    BigNum mod16("-30");
+    cout << "-100 % -30 = ";
+    mod15.mod(mod16).print(); // Expected: -10
+
+    // Zero dividend
+    BigNum mod17("0");
+    BigNum mod18("123");
+    cout << "0 % 123 = ";
+    mod17.mod(mod18).print(); // Expected: 0
+
+    // Modulo by zero
+    BigNum mod19("123");
+    BigNum mod20("0");
+    cout << "123 % 0 = ";
+    try {
+        mod19.mod(mod20).print(); // Expected: CANNOT MOD BY 0! Ans = 0
+    } catch (const std::runtime_error& e) {
+        cout << e.what() << endl;
+    }
 
 
     // ===== Increment Tests =====
@@ -210,4 +276,5 @@ int main() {
     inc6.print(); // Expected: 1
 
     return 0;
+
 }

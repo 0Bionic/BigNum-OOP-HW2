@@ -370,47 +370,91 @@ BigNum BigNum::multiply(const BigNum& bigNum) {
 BigNum BigNum::div(const BigNum& bigNum) {
     BigNum result("0");
 
-    // Division by zero check
+    // If divided by zero
     if (bigNum.value.size() == 1 && bigNum.value[0] == '0') {
-        throw std::runtime_error("Division by zero");
+        std::cout<<"CANNOT DIVIDE BY 0!\n";
+        return BigNum();
     }
 
-    // If this < bigNum, answer is always 0
+    // Copy and ignore sign
     BigNum dividend = *this;
     BigNum divisor = bigNum;
     dividend.negative = false;
     divisor.negative = false;
 
+    // If this < bigNum answer will always be 0
     if (dividend.lessThan(divisor)) {
         return result;
     }
 
-    std::string quotient;
+    std::vector<char> quotient;
     BigNum remainder("0");
 
     // long division
-    for (char digit : dividend.value) {
+    for (int i = 0; i < dividend.value.size(); ++i) {
+        char digit = dividend.value[i];
         // remainder = remainder * 10 + current digit
         remainder = remainder.multiply(BigNum("10"));
         remainder = remainder.add(BigNum(std::string(1, digit))); // makes a BigNum with the current digit and adds it to the remainder
 
-        int count = 0;
-        
-    while (remainder.greaterThan(divisor) || remainder.equals(divisor)) {
-            remainder = remainder.subtract(divisor);
-            count++;
-            std::cout<<"Inside while loop\n";
+        // remove leading zeros from remainder
+        while (remainder.value.size() > 1 && remainder.value[0] == '0') {
+            remainder.value.erase(remainder.value.begin());
         }
-        std::cout<<"Out of the while loop\n";
-        quotient += std::to_string(count);
+
+        int count = 0;
+
+// ENTERED AN INFINITE LOOP -----------------------------------------------------
+        // // long division
+        // for (char digit : dividend.value) {
+        //     // remainder = remainder * 10 + current digit
+        //     remainder = remainder.multiply(BigNum("10"));
+        //     remainder = remainder.add(BigNum(std::string(1, digit))); // makes a BigNum with the current digit and adds it to the remainder
+
+        //     int count = 0;
+            
+        // while (remainder.greaterThan(divisor) || remainder.equals(divisor)) {
+        //         remainder = remainder.subtract(divisor);
+        //         count++;
+        //         std::cout<<"Inside while loop\n";
+        //     }
+        //     std::cout<<"Out of the while loop\n";
+        //     quotient += std::to_string(count);
+        // }
+        // std::cout<<"Out of the for loop\n";
+// ------------------------------------------------------------------------------
+
+        // Trying digits from 9 to 0
+        for (int k = 9; k >= 0; --k) {
+            // temp = divisor * k
+            BigNum temp = divisor.multiply(BigNum(std::string(1, char('0' + k))));
+
+            // If temp fits in remainder
+            if (!remainder.lessThan(temp)) {
+                remainder = remainder.subtract(temp); // Subtract it
+                count = k;                            // Store quotient digit
+                break;                                // Done for this position
+            }
+        }
+
+        quotient.push_back(char('0' + count));
     }
-    std::cout<<"Out of the for loop\n";
-    ////////
-    std::cout << "Quotient before BigNum construction: " << quotient << "\n";
-    BigNum finalResult(quotient);
-    std::cout << "Quotient after BigNum construction: " << quotient << "\n";
-    ////////
-    // If bot bigNums have opposite signs, then negative will be true
+
+    // Remove leading zeros from quotient
+    while (quotient.size() > 1 && quotient[0] == '0') {
+        quotient.erase(quotient.begin());
+    }
+
+    // Convert vector<char> to string manually
+    std::string quotientStr;
+    quotientStr.reserve(quotient.size());
+    for (int i = 0; i < quotient.size(); i++) {
+        quotientStr += quotient[i];
+    }
+
+    BigNum finalResult(quotientStr);
+
+    // If both bigNums have opposite signs, then negative will be true
     finalResult.negative = (negative != bigNum.negative);
 
     // If answer is 0
@@ -420,10 +464,40 @@ BigNum BigNum::div(const BigNum& bigNum) {
 
     return finalResult;
 }
-
-
-
 // ==============================================
+
+// ===== Arithmetic Operation: Modulus =====
+BigNum BigNum::mod(const BigNum& bigNum) {
+    // Division by zero check
+    if (bigNum.value.size() == 1 && bigNum.value[0] == '0') {
+        std::cout<<"CANNOT MOD BY 0!\n";
+        return BigNum();
+    }
+
+    // make both bigNum positive
+    BigNum divisor = bigNum;
+    divisor.negative = false;
+
+    BigNum dividend = *this;
+    bool dividendNeg = dividend.negative;
+    dividend.negative = false;
+
+    BigNum quotient = dividend.div(divisor);
+    BigNum remainder = dividend.subtract(quotient.multiply(divisor));
+
+    // Remove leading zeros
+    while (remainder.value.size() > 1 && remainder.value[0] == '0') {
+        remainder.value.erase(remainder.value.begin());
+    }
+
+    // restore sign
+    remainder.negative = dividendNeg;
+
+    return remainder;
+}
+
+
+
 
 // ===== Comparison Operations =====
 
