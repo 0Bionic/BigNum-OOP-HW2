@@ -372,12 +372,12 @@ BigNum BigNum::div(const BigNum& bigNum) {
     }
 
     // If this < bigNum, answer is always 0
-    BigNum lhs = *this;
-    BigNum rhs = bigNum;
-    lhs.negative = false;
-    rhs.negative = false;
+    BigNum dividend = *this;
+    BigNum divisor = bigNum;
+    dividend.negative = false;
+    divisor.negative = false;
 
-    if (lhs.lessThan(rhs)) {
+    if (dividend.lessThan(divisor)) {
         return result;
     }
 
@@ -385,22 +385,26 @@ BigNum BigNum::div(const BigNum& bigNum) {
     BigNum remainder("0");
 
     // long division
-    for (char digit : lhs.value) {
+    for (char digit : dividend.value) {
         // remainder = remainder * 10 + current digit
         remainder = remainder.multiply(BigNum("10"));
         remainder = remainder.add(BigNum(std::string(1, digit))); // makes a BigNum with the current digit and adds it to the remainder
 
         int count = 0;
-        while (!remainder.lessThan(rhs) || !remainder.equals(rhs)) {
-            remainder = remainder.subtract(rhs);
+        
+        while (!remainder.lessThan(divisor)) {
+            remainder = remainder.subtract(divisor);
             count++;
         }
-
+        std::cout<<"Out of the while loop\n";
         quotient.push_back('0' + count);
     }
-
+    std::cout<<"Out of the for loop\n";
+    ////////
+    std::cout << "Quotient before BigNum construction: " << quotient << "\n";
     BigNum finalResult(quotient);
-
+    std::cout << "Quotient after BigNum construction: " << quotient << "\n";
+    ////////
     // If bot bigNums have opposite signs, then negative will be true
     finalResult.negative = (negative != bigNum.negative);
 
